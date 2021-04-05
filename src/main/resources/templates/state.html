@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+
+<head>
+    <title>Coronavirus Tracker</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark p-2 fixedNav">
+    <div class="container">
+        <a th:href="@{/}" class="navbar-brand">Coronavirus Tracker</a>
+        <button class="navbar-toggler"
+                data-toggle="collapse"
+                data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li sec:authorize="isAuthenticated()" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Confirmed Cases
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown1">
+                        <a class="dropdown-item" th:href="@{/cases/state}">By State</a>
+                        <a class="dropdown-item" th:href="@{/cases/country}">By Country</a>
+                        <a class="dropdown-item" th:href="@{/cases/ranking}">Rating</a>
+                        <a class="dropdown-item" th:href="@{/cases/video}">Animation</a>
+                    </div>
+                </li>
+                <li sec:authorize="isAuthenticated()" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown2" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Confirmed Deaths
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
+                        <a class="dropdown-item" th:href="@{/death/state}">By State</a>
+                        <a class="dropdown-item" th:href="@{/death/country}">By Country</a>
+                        <a class="dropdown-item" th:href="@{/death/ranking}">Rating</a>
+                        <a class="dropdown-item" th:href="@{/death/video}">Animation</a>
+                    </div>
+                </li>
+                <li sec:authorize="isAuthenticated()" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown3" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Recovered
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown3">
+                        <a class="dropdown-item" th:href="@{/recovered/state}">By State</a>
+                        <a class="dropdown-item" th:href="@{/recovered/country}">By Country</a>
+                        <a class="dropdown-item" th:href="@{/recovered/ranking}">Rating</a>
+                        <a class="dropdown-item" th:href="@{/recovered/video}">Animation</a>
+                    </div>
+                </li>
+
+                <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <a class="nav-link" th:href="@{/user}">
+                        <span>Users</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post">
+                        <input sec:authorize="isAuthenticated()" value="Logout" type="submit" class="btn btn-link">
+                    </form>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/login}">
+                        <span>Login</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/register}">
+                        <span>Register</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <h2 class="my-4">Coronavirus Cases By State</h2>
+    <table id="state" class="table text-center table-bordered table-striped table-hover">
+        <thead class="thead-dark">
+        <tr>
+            <th>Country</th>
+            <th>State</th>
+            <th>Today</th>
+            <th>Yesterday</th>
+            <th>Change</th>
+        </tr>
+        </thead>
+        <tr th:each="state : ${casesByStates}">
+            <td th:text="${state.country}"></td>
+            <td th:text="${state.state}"></td>
+            <td th:text="${#numbers.formatDecimal(state.latestDayCases, 1, 'WHITESPACE', 0, 'POINT')}">0</td>
+            <td th:text="${#numbers.formatDecimal(state.previousDayCases, 1, 'WHITESPACE', 0, 'POINT')}">0</td>
+            <td th:text="${#numbers.formatDecimal(state.difference, 1, 'WHITESPACE', 0, 'POINT')}">0</td>
+        </tr>
+    </table>
+</div>
+<script type="text/javascript" th:inline="none" class="init">
+    $(document).ready(function () {
+        $('#state').DataTable({
+            "info": false,
+            "pageLength": 25
+        });
+    });
+</script>
+</body>
+
+</html>
